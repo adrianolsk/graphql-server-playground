@@ -13,6 +13,7 @@ const typeDefs = `
 
   type Query {
     me: User
+    me2: User
   }
 
   type Mutation {

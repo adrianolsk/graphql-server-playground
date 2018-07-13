@@ -17,16 +17,16 @@ const resolvers = {
     // fetch the profile of currenly athenticated user
     me: requiresRole("Admin", async (_, args, { user }) => {
       return await User.findById(user.id);
-    })
-    // async me2(_, args, { user }) {
-    //   // Make sure user is logged in
-    //   if (!user) {
-    //     throw new Error("You are not authenticated!");
-    //   }
+    }),
+    async me2(_, args, { user }) {
+      // Make sure user is logged in
+      if (!user) {
+        throw new Error("You are not authenticated!");
+      }
 
-    //   // user is authenticated
-    //   return await User.findById(user.id);
-    // }
+      // user is authenticated´´
+      return await User.findById(user.id);
+    }
   },
 
   Mutation: {
