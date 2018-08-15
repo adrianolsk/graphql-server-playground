@@ -9,11 +9,20 @@ const typeDefs = `
     id: Int!
     username: String!
     email: String!
+    pets: [Pet]
+  }
+
+  type Pet {
+    id: Int!
+    name: String!
+    owner: User
   }
 
   type Query {
     me: User
     me2: User
+    usuarios: [User]
+    pets: [Pet]
   }
 
   type Mutation {

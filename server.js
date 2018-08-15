@@ -5,13 +5,13 @@ const bodyParser = require("body-parser");
 const { graphqlExpress } = require("apollo-server-express");
 const schema = require("./data/schema");
 const jwt = require("express-jwt");
+const DataLoader = require("dataloader");
+const { groupBy } = require("lodash");
+const { pet, Op } = require("./models");
 require("dotenv").config();
 
 const PORT = 3031;
-//todo:aa
-//! important
-//?aaa
-//teste
+
 // create our express app
 const app = express();
 
@@ -21,6 +21,21 @@ const auth = jwt({
   credentialsRequired: false
 });
 
+const batchPets = async keys => {
+  // keys = [1,2,3]
+  const pets = await pet.findAll({
+    raw: true,
+    where: {
+      owner_id: {
+        [Op.in]: keys
+      }
+    }
+  });
+
+  // keys => [{owner_id: 1}]
+  const gs = groupBy(pets, "owner_id");
+  return keys.map(k => gs[k] || []);
+};
 // graphql endpoint
 app.use(
   "/api",
@@ -29,7 +44,8 @@ app.use(
   graphqlExpress(req => ({
     schema,
     context: {
-      user: req.user
+      user: req.user,
+      petsLoader: new DataLoader(keys => batchPets(keys))
     },
     formatError(err) {
       //errors.report(err, req); // <-- log the error

@@ -1,6 +1,6 @@
 "use strict";
 
-const { User } = require("../models");
+const { User, pet } = require("../models");
 const bcrypt = require("bcrypt");
 const jsonwebtoken = require("jsonwebtoken");
 require("dotenv").config();
@@ -13,9 +13,27 @@ const requiresRole = (role, resolver) => async (_, args, context, ...rest) => {
 };
 
 const resolvers = {
+  User: {
+    pets: ({ id }, args, { petsLoader }) => {
+      return petsLoader.load(id);
+      // pet.findAll({
+      //   where: {
+      //     owner_id: id
+      //   }
+      // });
+    }
+  },
+  Pet: {
+    owner: ({ owner_id }, args, {}) =>
+      User.findOne({
+        where: {
+          id: owner_id
+        }
+      })
+  },
   Query: {
     // fetch the profile of currenly athenticated user
-    me: requiresRole("Admin", async (_, args, { user }) => {
+    me: requiresRole("admin", async (_, args, { user }) => {
       return await User.findById(user.id);
     }),
     async me2(_, args, { user }) {
@@ -26,9 +44,25 @@ const resolvers = {
 
       // user is authenticated´´
       return await User.findById(user.id);
-    }
+    },
+    usuarios: requiresRole("admin", async (_, args, { user }) => {
+      let users = await User.findAll({ raw: true });
+      return users;
+    }),
+    pets: requiresRole("admin", async (_, args, { user }) => {
+      let users = await pet.findAll({
+        //raw: true,
+        // include: [
+        //   {
+        //     model: User,
+        //     as: "owner"
+        //   }
+        // ]
+      });
+      return users;
+    })
   },
-
+  //test comment
   Mutation: {
     // Handle user signup
     async signup(_, { username, email, password }) {
