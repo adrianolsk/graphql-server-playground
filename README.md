@@ -1,6 +1,6 @@
 # graphql-jwt-auth
 
- Adding authentication with JWT to a GraphQL server
+Adding authentication with JWT to a GraphQL server
 
 ## Getting Started
 
@@ -37,6 +37,8 @@ Then run the migration:
 
 ```bash
 sequelize db:migrate
+# or
+npm run migration
 ```
 
 And finally, start the application:

@@ -16,27 +16,26 @@ const resolvers = {
   User: {
     pets: ({ id }, args, { petsLoader }) => {
       return petsLoader.load(id);
-      // pet.findAll({
-      //   where: {
-      //     owner_id: id
-      //   }
-      // });
     }
   },
   Pet: {
-    owner: ({ owner_id }, args, {}) =>
-      User.findOne({
-        where: {
-          id: owner_id
-        }
-      })
+    //with dataloader there is one query
+    owner: ({ owner_id }, args, { usersLoader }) => usersLoader.load(owner_id)
   },
+  // Pet: { // without dataloader there would be one query for each pet
+  //   owner: ({ owner_id }, args, {}) =>
+  //     User.findOne({
+  //       where: {
+  //         id: owner_id
+  //       }
+  //     })
+  // },
   Query: {
     // fetch the profile of currenly athenticated user
     me: requiresRole("admin", async (_, args, { user }) => {
       return await User.findById(user.id);
     }),
-    async me2(_, args, { user }) {
+    me2: async (_, args, { user }) => {
       // Make sure user is logged in
       if (!user) {
         throw new Error("You are not authenticated!");
@@ -51,16 +50,23 @@ const resolvers = {
     }),
     pets: requiresRole("admin", async (_, args, { user }) => {
       let users = await pet.findAll({
-        //raw: true,
-        // include: [
-        //   {
-        //     model: User,
-        //     as: "owner"
-        //   }
-        // ]
+        raw: true
       });
       return users;
     })
+    // pets: requiresRole("admin", async (_, args, { user }) => {
+    //   //without resolvers we could include data this way
+    //   let users = await pet.findAll({
+    //     raw: true,
+    //     include: [
+    //       {
+    //         model: User,
+    //         as: "owner"
+    //       }
+    //     ]
+    //   });
+    //   return users;
+    // })
   },
   //test comment
   Mutation: {
